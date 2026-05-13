@@ -59,6 +59,6 @@ website:
       - "index.ipynb"
       - section: "프로젝트"
         contents:
-        - "project/pyproject.toml.ipynb"
+        - "project/pyproject.ipynb"
         - "project/poetry.ipynb"
         - "project/uv.ipynb"
