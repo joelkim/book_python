@@ -57,8 +57,24 @@ website:
     search: true
     contents:
       - "index.ipynb"
+      - section: "개발환경"
+        contents:
+        - "devenv/pip.ipynb"
+      - section: "파이썬 언어 기초"
+        contents:
+        - "lang/basic.ipynb"
       - section: "프로젝트"
         contents:
         - "project/pyproject.ipynb"
         - "project/poetry.ipynb"
         - "project/uv.ipynb"
+      - section: "애플리케이션"
+        contents:
+        - section: "데이터"
+          contents:
+          - "apps/data/pydantic/pydantic.ipynb"
+        - section: "웹"
+          contents:
+          - "apps/web/uvicorn/uvicorn.ipynb"
+          - "apps/web/starlette/starlette.ipynb"
+          - "apps/web/fastapi/fastapi.ipynb"
