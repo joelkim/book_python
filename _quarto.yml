@@ -50,4 +50,4 @@ website:
         - section: "웹"
           contents:
           - "apps/web/webservice.ipynb"
-          - "apps/web/fastapi/fastapi.ipynb"
+          - "apps/web/package_fastapi/fastapi.ipynb"
