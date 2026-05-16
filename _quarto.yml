@@ -49,6 +49,5 @@ website:
           - "apps/data/pydantic/pydantic.ipynb"
         - section: "웹"
           contents:
-          - "apps/web/uvicorn/uvicorn.ipynb"
-          - "apps/web/starlette/starlette.ipynb"
+          - "apps/web/webservice.ipynb"
           - "apps/web/fastapi/fastapi.ipynb"
