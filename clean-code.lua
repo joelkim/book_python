@@ -88,11 +88,29 @@ local function transform_bash(text)
   return table.concat(lines, "\n")
 end
 
-local function replace_home_prefix(line)
-  for _, prefix in ipairs(HOME_PREFIXES) do
-    if starts_with(line, prefix) then
-      return HOME_REPLACEMENT .. line:sub(#prefix + 1)
+ -- Lua pattern이 아니라 plain text 기준으로 모두 치환
+local function replace_all_plain(text, target, replacement)
+  local result = {}
+  local start_pos = 1
+
+  while true do
+    local s, e = text:find(target, start_pos, true) -- true = plain search
+    if not s then
+      table.insert(result, text:sub(start_pos))
+      break
     end
+
+    table.insert(result, text:sub(start_pos, s - 1))
+    table.insert(result, replacement)
+    start_pos = e + 1
+  end
+
+  return table.concat(result)
+end
+
+local function replace_home_paths(line)
+  for _, prefix in ipairs(HOME_PREFIXES) do
+    line = replace_all_plain(line, prefix, HOME_REPLACEMENT)
   end
 
   return line
@@ -102,15 +120,15 @@ local function transform_output(text)
   local lines = split_lines(text)
 
   for i, line in ipairs(lines) do
-    -- 출력의 어떤 라인이 HOME_PREFIXES 중 하나로 시작하면 해당 prefix를 ~로 치환
+    -- 출력 라인 중간에 경로가 있어도 모두 치환
     --
     -- 예:
-    -- c:\Users\USER\project\file.py
-    -- -> ~\project\file.py
+    -- File "c:\Users\USER\project\main.py", line 10
+    -- -> File "~\project\main.py", line 10
     --
-    -- /Users/joelkim/project/file.py
-    -- -> ~/project/file.py
-    lines[i] = replace_home_prefix(line)
+    -- Error at /Users/joelkim/project/main.py
+    -- -> Error at ~/project/main.py
+    lines[i] = replace_home_paths(line)
   end
 
   return table.concat(lines, "\n")
