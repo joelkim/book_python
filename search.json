@@ -1,0 +1,207 @@
+[
+  {
+    "objectID": "lang/async.html",
+    "href": "lang/async.html",
+    "title": "비동기",
+    "section": "",
+    "text": "async 키워드를 함수 앞에 붙이면 비동기 함수가 됨\n비동기 함수를 호출하면 그 함수를 실행하는게 아니고 해당 함수에 대한 코루틴(coroutine)을 출력\n함수 코루틴은 그 함수를 앞으로 실행하겠다는 약속에 지나지 않음\n\n\n# async1.py\nimport asyncio\n\nasync def add(x: int) -&gt; int:\n    return x + 1\n\ndef main():\n    ret = add(1)\n    print(f\"ret = {ret}\")\n\nif __name__ == \"__main__\":\n    main()\n\n\n$ python async1.py\n\nret = &lt;coroutine object add at 0x000001BDADBEE800&gt;\n\n\n~\\Work\\book\\book_python\\lang\\async1.py:11: RuntimeWarning: coroutine 'add' was never awaited\n  main()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback",
+    "crumbs": [
+      "파이썬 언어",
+      "비동기"
+    ]
+  },
+  {
+    "objectID": "lang/async.html#비동기-함수-정의",
+    "href": "lang/async.html#비동기-함수-정의",
+    "title": "비동기",
+    "section": "",
+    "text": "async 키워드를 함수 앞에 붙이면 비동기 함수가 됨\n비동기 함수를 호출하면 그 함수를 실행하는게 아니고 해당 함수에 대한 코루틴(coroutine)을 출력\n함수 코루틴은 그 함수를 앞으로 실행하겠다는 약속에 지나지 않음\n\n\n# async1.py\nimport asyncio\n\nasync def add(x: int) -&gt; int:\n    return x + 1\n\ndef main():\n    ret = add(1)\n    print(f\"ret = {ret}\")\n\nif __name__ == \"__main__\":\n    main()\n\n\n$ python async1.py\n\nret = &lt;coroutine object add at 0x000001BDADBEE800&gt;\n\n\n~\\Work\\book\\book_python\\lang\\async1.py:11: RuntimeWarning: coroutine 'add' was never awaited\n  main()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback",
+    "crumbs": [
+      "파이썬 언어",
+      "비동기"
+    ]
+  },
+  {
+    "objectID": "lang/async.html#비동기-함수의-동기화-실행",
+    "href": "lang/async.html#비동기-함수의-동기화-실행",
+    "title": "비동기",
+    "section": "비동기 함수의 동기화 실행",
+    "text": "비동기 함수의 동기화 실행\n\n비동기 함수를 동기 함수처럼 실행하려면\n\n비동기 함수를 호출할 때 await 키워드를 붙여서 호출하고\n호출한 함수도 비동기 함수이여야 하며\n최초 호출한 비동기 함수의 코루틴을 asyncio.run 함수에 인수로 넘겨야\n\n비동기 함수를 await 방식으로 실행하면 실행 중 다른 함수를 동시 실행 불가능\n\n\n# async2.py\n1import asyncio\n\nasync def add(x: int) -&gt; int:\n    return x + 1\n\n2async def main():\n3    ret = await add(1)\n    print(f\"ret = {ret}\")\n\nif __name__ == \"__main__\":\n4    asyncio.run(main())\n\n\n1\n\nasyncio.run 함수를 사용하기 위해 asyncio 패키지 임포트\n\n2\n\nawait 호출을 하는 main 함수도 async 키워드가 있어야 함\n\n3\n\nawait 키워드를 붙여서 호출\n\n4\n\nmain 함수 자체가 아니라 main 함수가 반환하는 코루틴을 asyncio.run 함수에 넣어야 함\n\n\n\n\n\n$ python async2.py\n\nret = 2",
+    "crumbs": [
+      "파이썬 언어",
+      "비동기"
+    ]
+  },
+  {
+    "objectID": "lang/async.html#task-객체",
+    "href": "lang/async.html#task-객체",
+    "title": "비동기",
+    "section": "task 객체",
+    "text": "task 객체\n\nasyncio.create_task 함수에 비동기 함수의 코루틴을 넣어 만든 task 객체를 사용하면 동시 실행 가능\ntask 객체를 생성하는 순간 비동기 함수의 실행이 예약(스케줄링)되고 호출한 함수의 코드가 계속 실행됨\n다른 task 객체를 생성하면 그 비동기 함수도 실행 예약(스케줄링)\n호출한 함수가 await 키워드를 만나면 해당 task가 실행완료될 때까지 대기함\n만약 이미 완료된 상태면 바로 다음 라인으로 실행\n여러 task가 스케줄링되어 있는 경우 한 번에 하나의 task만 실행됨\ntask 실행중 sleep 또는 await를 만나면 해당 task는 실행을 중단하고 스케줄링된 다른 task 실행\n비동기 함수에는 time.sleep 함수 대신 asyncio.sleep 함수를 사용해야 함\nasyncio.sleep 함수도 비동기 함수이므로 await 키워드로 호출해야 함\n\n\n# async3.py\nimport asyncio\n\nasync def task_fun(x: int) -&gt; None:\n    print(f\"start task{x}\")\n    await asyncio.sleep(x)\n    print(f\"finish task{x}\")\n\n\nasync def main():\n1    task = asyncio.create_task(task_fun(1))\n    print(f\"task = {task}\")\n2    ret = await task\n    print(f\"ret = {ret}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n\n\n1\n\nasyncio.create_task 함수로 task 객체를 만든다\n\n2\n\ntask 개체에 대해서 await 호출\n\n\n\n\n\n$ python async3.py\n\ntask = &lt;Task pending name='Task-2' coro=&lt;task_fun() running at ~\\Work\\book\\book_python\\lang\\async3.py:3&gt;&gt;\nstart task1\nfinish task1\nret = None\n\n\n\n다음 코드는 3개의 task를 동시 실행하는 예시\ntask3, task2, task1 순서로 스케줄링\n처음 나타나는 await task3 라인에서 main 함수는 멈추고 스케줄링된 task가 실행 시작\ntask3 실행중 sleep을 만나면 task3는 일시 정지하고 task2 또는 task1이 실행 (순서는 미정)\n만약 task2이 실행되었다고 가정하고 실행중 sleep을 만나면 task2는 일시 정지하고 task1이 실행\n이 코드에서는 await task3 이 완료된 시점에서는 task1과 task2도 이미 완료된 상태이므로 await task2, await task1 이 사실상 의미가 없음\n\n\n# async4.py\nimport asyncio\n\nasync def task_fun(x: int) -&gt; None:\n    print(f\"start task{x}\")\n    await asyncio.sleep(x)\n    print(f\"finish task{x}\")\n\nasync def main():\n\n    task3 = asyncio.create_task(task_fun(3))\n    task2 = asyncio.create_task(task_fun(2))\n    task1 = asyncio.create_task(task_fun(1))\n\n    ret = await task3\n    ret = await task2\n    ret = await task1\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n\n\n$ python async4.py\n\nstart task3\nstart task2\nstart task1\nfinish task1\nfinish task2\nfinish task3\n\n\n\n실제로 await task2, await task1 라인을 없애도 정상 동작함\n\n\n# async5.py\nimport asyncio\n\nasync def task_fun(x: int) -&gt; None:\n    print(f\"start task{x}\")\n    await asyncio.sleep(x)\n    print(f\"finish task{x}\")\n\nasync def main():\n\n    task3 = asyncio.create_task(task_fun(3))\n    task2 = asyncio.create_task(task_fun(2))\n    task1 = asyncio.create_task(task_fun(1))\n\n    ret = await task3\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n\n\n$ python async5.py\n\nstart task3\nstart task2\nstart task1\nfinish task1\nfinish task2\nfinish task3\n\n\n\n하지만 다른 라인을 없애고 await task1 라인만 남기면 task2, task3이 끝날때까지 기다리지 않고 종료\n\n\n# async6.py\nimport asyncio\n\nasync def task_fun(x: int) -&gt; None:\n    print(f\"start task{x}\")\n    await asyncio.sleep(x)\n    print(f\"finish task{x}\")\n\nasync def main():\n\n    task3 = asyncio.create_task(task_fun(3))\n    task2 = asyncio.create_task(task_fun(2))\n    task1 = asyncio.create_task(task_fun(1))\n\n    ret = await task1\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n\n\n$ python async6.py\n\nstart task3\nstart task2\nstart task1\nfinish task1",
+    "crumbs": [
+      "파이썬 언어",
+      "비동기"
+    ]
+  },
+  {
+    "objectID": "apps/web/package_fastapi/fastapi.html",
+    "href": "apps/web/package_fastapi/fastapi.html",
+    "title": "fastapi",
+    "section": "",
+    "text": "starlette 웹 프레임워크 기반의 REST API 서버\n\n\n# fastapi1/main.py\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}\n\n\n개발시에는 fastapi dev 파일이름\n가동시에는 fastapi run 파일이름\n파일이름이 main.py 인 경우에는 파일이름 생략 가능",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "fastapi"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html",
+    "href": "apps/web/webservice.html",
+    "title": "파이썬 웹 서비스",
+    "section": "",
+    "text": "파이썬 웹서버는 웹 브라우저로부터 받은 호출에 따라 미리 정해진 파이썬 함수를 실행하고 그 결과를 다시 웹브라우저에게 전달한다.\n이 때 호출될 파이썬 함수가 어떻게 구현되어 있어야 하고 이 함수를 어떤 식으로 호출하는가는 미리 정한 규약을 따라야 한다.\nWSGI(Web Server Gateway Interface) 규약은 동기적으로 파이썬 코드를 실행하는 경우 사용되는 규약\nASGI(Asynchronous Server Gateway Interface) 규약은 비동기적으로 파이썬 코드를 실행하는 경우 사용되는 규약",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html#wsgi-규약과-asgi-규약",
+    "href": "apps/web/webservice.html#wsgi-규약과-asgi-규약",
+    "title": "파이썬 웹 서비스",
+    "section": "",
+    "text": "파이썬 웹서버는 웹 브라우저로부터 받은 호출에 따라 미리 정해진 파이썬 함수를 실행하고 그 결과를 다시 웹브라우저에게 전달한다.\n이 때 호출될 파이썬 함수가 어떻게 구현되어 있어야 하고 이 함수를 어떤 식으로 호출하는가는 미리 정한 규약을 따라야 한다.\nWSGI(Web Server Gateway Interface) 규약은 동기적으로 파이썬 코드를 실행하는 경우 사용되는 규약\nASGI(Asynchronous Server Gateway Interface) 규약은 비동기적으로 파이썬 코드를 실행하는 경우 사용되는 규약",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html#wsgi-웹-서버",
+    "href": "apps/web/webservice.html#wsgi-웹-서버",
+    "title": "파이썬 웹 서비스",
+    "section": "WSGI 웹 서버",
+    "text": "WSGI 웹 서버\n\nWSGI 웹 서버에 제공되는 파이썬 함수는 다음과 같이 구현되어야 한다.\n\n\n# wsgi_app_module1.py\n\nfrom collections.abc import Callable, Iterable\n\ndef app(env: dict, start_response:  Callable) -&gt; Iterable[bytes]:\n  # env에 있는 입력 정보를 처리하여 출력 데이터 생성\n  data = b\"Hello, World!\"\n  # start_response 함수를 호출하여 상태, 헤더, 예외 전송\n  start_response(\"200 OK\", [\n        (\"Content-Type\", \"text/plain\"),\n        (\"Content-Length\", str(len(data))),\n    ])\n  # 결과를 이터러블 객체로 반환\n  return [data]\n```\n\n\nWSGI 규약에 따라 만들어진 대표적인 웹 서버는 gunicorn 서버이다. (윈도우즈 OS에서는 사용불가)\ngunicorn 서버는 다음과 같이 웹서버 코드를 가진 모듈 이름과 함수 이름을 인수로 주어 가동한다.\n모듈은 임포트 가능해야 한다. 즉 gunicorn 명령을 실행하는 디렉토리에 있거나 위치가 sys.path 경로내에 포함되어 있어야 한다.\n\n$ gunicorn wsgi_app_module1:app",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html#asgi-웹-서버",
+    "href": "apps/web/webservice.html#asgi-웹-서버",
+    "title": "파이썬 웹 서비스",
+    "section": "ASGI 웹 서버",
+    "text": "ASGI 웹 서버\n\nASGI 웹 서버에 제공되는 파이썬 함수는 다음과 같이 구현되어야 한다.\nWSGI 규약과 달리 결과를 반환하지 않고 상태정보나 헤더정보처럼 send 함수로 보낸다.\n\n\n# asgi_app_module1.py\n\nfrom typing import Callable\n\nasync def app(\n    scope: dict,\n    receive: Callable,\n    send: Callable,\n) -&gt; None:\n    # body가 있는 경우 receive 함수를 호출하여 정보 입수\n    # event = await receive()\n    data = b\"Hello, world!\"\n\n    # 상태 코드와 헤더 전송\n    await send({\n        \"type\": \"http.response.start\",\n        \"status\": 200,\n        \"headers\": [(b\"content-type\", b\"text/plain\")],\n    })\n\n    # 응답 본문 전송\n    await send({\n        \"type\": \"http.response.body\",\n        \"body\": data,\n    })\n\n\nASGI 규약에 따라 만들어진 대표적인 웹 서버는 uvicorn 서버\n가동 방식은 gunicorn과 같다.\n\n$ unvicorn asgi_app_module1:app",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html#웹-프레임워크",
+    "href": "apps/web/webservice.html#웹-프레임워크",
+    "title": "파이썬 웹 서비스",
+    "section": "웹 프레임워크",
+    "text": "웹 프레임워크\n\n웹 프레임워크는 웹 서버가 사용할 애플리케이션 코드를 구현하는 것을 도와주는 파이썬 패키지\n복잡한 웹 애플리케이션을 구조화하여 개발할 수 있는 체계를 제공\n웹 애플리케이션 구현시 공통적으로 필요한 로그인 처리, 세션 처리, 데이터베이스 연결 등에 필요한 자료구조나 함수 등을 제공\n대표적 웹 프레임워크\n\nflask: 소형 웹 프레임워크. WSGI 지원\ndjango: 자체 ORM, 템플릿, 관리자 UI 등을 포함하는 풀스택 웹 프레임워크, WSGI/ASGI 모두 지원\nstarlette: 소형 웹 프레임워크. ASGI 지원",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "apps/web/webservice.html#starlette",
+    "href": "apps/web/webservice.html#starlette",
+    "title": "파이썬 웹 서비스",
+    "section": "starlette",
+    "text": "starlette\n\n비동기 ASGI 전용 웹 프레임워크\n\n\n# starlette1.py\n\nfrom starlette.applications import Starlette\nfrom starlette.responses import PlainTextResponse\nfrom starlette.routing import Route\n\n\nasync def homepage(request):\n    return PlainTextResponse(\"Hello, world!\")\n\n\napp = Starlette(debug=True, routes=[\n    Route('/', homepage),\n])",
+    "crumbs": [
+      "애플리케이션",
+      "웹",
+      "파이썬 웹 서비스"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html",
+    "href": "project/pyproject.html",
+    "title": "파이썬 프로젝트",
+    "section": "",
+    "text": "파이썬 프로젝트는 파이썬 프로젝트 산출물을 제작하기 위한 소스코드 및 메타정보를 모아놓은 것을 말한다.\n파이썬 프로젝트 산출물에는 다음 3가지가 있다\n\n파이썬 패키지: 다른 파이썬 코드에서 임포트하여 사용할 수 있는 파이썬 패키지\n실행 바이너리: .exe 확장자 파일(윈도우즈의 경우) 등 직접 실행가능한 실행 바이너리 파일\n실행 스크립트: 파이썬 인터프리터로 실행가능한 .py 확장자 파일\n\n3가지 중 하나만 선택하는 것이 아니라 복수 종류의 산출물을 복수개 만드는 것도 가능\n\n예시: 2개의 패키지, 1개의 바이너리, 3개의 스크립트를 생성하는 프로젝트",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#파이썬-패키지",
+    "href": "project/pyproject.html#파이썬-패키지",
+    "title": "파이썬 프로젝트",
+    "section": "파이썬 패키지",
+    "text": "파이썬 패키지",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#실행-바이너리와-실행-스크립트",
+    "href": "project/pyproject.html#실행-바이너리와-실행-스크립트",
+    "title": "파이썬 프로젝트",
+    "section": "실행 바이너리와 실행 스크립트",
+    "text": "실행 바이너리와 실행 스크립트",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#프로젝트-도구",
+    "href": "project/pyproject.html#프로젝트-도구",
+    "title": "파이썬 프로젝트",
+    "section": "프로젝트 도구",
+    "text": "프로젝트 도구\n\n프로젝트에는 다음과 같은 도구들이 필요하다.\n\n의존성 관리자\n빌드 시스템",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#의존성-관리자",
+    "href": "project/pyproject.html#의존성-관리자",
+    "title": "파이썬 프로젝트",
+    "section": "의존성 관리자",
+    "text": "의존성 관리자\n\n의존성 관리자는 프로젝트에서 사용하는 버전의 파이썬이나 패키지를 별도의 가상환경으로 격리하여 설치하거나 사용하도록 도와주는 도구\n의존성 관리자의 예시\n\nconda/mamba\npipenv\npoetry\nuv\n\n가상환경을 만들고 가상환경내에 패키지들을 격리 설치\n\nconda/mamba: 여러 프로젝트가 공동으로 사용가능한 전역 가상환경 관리를 목적으로 설계\npoetry/uv: 특정 프로젝트 디렉토리에서만 사용가능한 프로젝트 전용 가상환경 관리를 목적으로 설계",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#빌드-시스템",
+    "href": "project/pyproject.html#빌드-시스템",
+    "title": "파이썬 프로젝트",
+    "section": "빌드 시스템",
+    "text": "빌드 시스템\n\n소스코드로부터 파이썬 산출물을 만들거나 만들어진 산출물을 설치하는 일을 도와주는 도구\n빌드 시스템의 예시\n\nsetuptools\npoetry_core\nuv_build\nhatchling\nmaturin",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  },
+  {
+    "objectID": "project/pyproject.html#메타정보",
+    "href": "project/pyproject.html#메타정보",
+    "title": "파이썬 프로젝트",
+    "section": "메타정보",
+    "text": "메타정보\n\n메타정보는 pyproject.toml 이라는 텍스트 파일로 저장\n다음과 같은 정보를 저장\n\n프로젝트 자체의 이름, 제작자 등에 대한 설명\n어떤 산출물을 생산할지에 대한 정보\n어떤 의존성 관리자 및 빌드 시스템을 사용할 지 등에 대한 정보",
+    "crumbs": [
+      "프로젝트",
+      "파이썬 프로젝트"
+    ]
+  }
+]
